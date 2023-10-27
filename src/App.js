@@ -1,9 +1,10 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Form from 'react-bootstrap/Form';
-// import Button from 'react-bootstrap/Button';
 import { useEffect, useState } from 'react';
 import Todo from './Todo';
+
+
 
 function App() {
 
@@ -13,13 +14,12 @@ function App() {
   
 
 
-  const [todoid, setTodoid] = useState(2); // 현재 2개의 값을 입력하여 기본값 2
-  const [todo, setTodo] = useState([
-    {id:1, text:'Learn React', checked:false},
-    {id:2, text:'Get a job', checked:false}
+  const [todoid, setTodoid] = useState(0); // 현재 2개의 값을 입력하여 기본값 2
+  const [todo, setTodo] = useState([])
+
     //객체나 배열은 storage에 저장시 문자로 변환해야함. 아니면 이렇게 뜸 ->[object Object],[object Object] 
     //그리고 todo로 다시 넣으려면 문자열이 아닌 객체나 배열로 다시 변환 필요 
-  ])
+
   // const objString = JSON.stringify(todo);  //객체,배열 -> 문자열로 변환
   // console.log(objString);
   // window.localStorage.setItem('todo', objString);  //스토리지 저장
@@ -33,7 +33,9 @@ function App() {
     if(todoListFromStoage !==null){
       //값이 있다면
       const todoObj = JSON.parse(todoListFromStoage);
+      let lastId = todoObj[todoObj.length-1].id;
       setTodo(todoObj);
+      setTodoid(lastId);
     }else{
       const todoString = JSON.stringify(todo);
       window.localStorage.setItem('todo', todoString);
@@ -53,8 +55,17 @@ function App() {
     setTodo(newTodos);
   }
 
+  const update = (id, val) => {
+    let newTodos = [...todo];
+    let index = newTodos.findIndex(item =>(item.id ===id));
+    newTodos[index] = {id:id , text:val, checked:false}
+    setTodo(newTodos);
+    //getTodolist();
+  }
+
+
   let todos = todo.map(item=>(
-    <Todo data={item} key={item.id} deleteTodo={deleteTodo} />
+    <Todo data={item} key={item.id} deleteTodo={deleteTodo} update={update} />
   ))
 
   let addTodo = (value)=>{
@@ -80,29 +91,30 @@ function App() {
 
 
   return (
-    <div className="container">
-      <h1>To Do List</h1>
-      <Form onSubmit={e =>{
-        e.preventDefault();
-        //console.log(e.target.todo.value); //input에 name 값이 있어야 value를 가져올 수 있음
-        addTodo(e.target.todo.value);
-      }}>
-        <Form.Group className="mb-3" controlId="todo">
-          <Form.Label>todo</Form.Label>
-          <Form.Control type="text" name="todo" placeholder="할 일을 입력하세요."/>
-        </Form.Group>
-        {/* <Button variant="primary" type="submit">
-          Submit
-        </Button> */}
-      </Form>
-      <hr/>
-      <div>
-        {todos}
+      <div className="container">
+        <h1>To Do List</h1>
+        <Form onSubmit={e =>{
+          e.preventDefault();
+          //console.log(e.target.todo.value); //input에 name 값이 있어야 value를 가져올 수 있음
+          addTodo(e.target.todo.value);
+        }}>
+          <Form.Group className="mb-3" controlId="todo">
+            <Form.Label>todo</Form.Label>
+            <Form.Control type="text" name="todo" placeholder="할 일을 입력하세요."/>
+          </Form.Group>
+          {/* <Button variant="primary" type="submit">
+            Submit
+          </Button> */}
+        </Form>
+        <hr/>
+        <div>
+          {todos}
+        </div>
+
+
+        
       </div>
 
-
-      
-    </div>
   );
 }
 
